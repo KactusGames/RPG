@@ -1,0 +1,88 @@
+import random
+import time
+
+# Define the player and enemy classes
+class Character:
+    def __init__(self, name, hp, attack_power):
+        self.name = name
+        self.hp = hp
+        self.attack_power = attack_power
+
+    def attack(self, other):
+        damage = random.randint(0, self.attack_power)
+        other.hp -= damage
+        return damage
+
+    def is_alive(self):
+        return self.hp > 0
+
+    def __str__(self):
+        return f"{self.name} - HP: {self.hp}"
+
+class Player(Character):
+    def __init__(self, name):
+        super().__init__(name, 100, 20)
+        self.experience = 0
+        self.level = 1
+
+    def gain_experience(self, amount):
+        self.experience += amount
+        if self.experience >= self.level * 100:
+            self.experience -= self.level * 100
+            self.level_up()
+
+    def level_up(self):
+        self.level += 1
+        self.hp += 20
+        self.attack_power += 5
+        print(f"Congratulations! {self.name} leveled up to Level {self.level}!")
+
+class Enemy(Character):
+    def __init__(self, name, hp, attack_power):
+        super().__init__(name, hp, attack_power)
+
+def battle(player, enemy):
+    print(f"\n{player.name} encounters {enemy.name}!")
+    
+    while player.is_alive() and enemy.is_alive():
+        time.sleep(1)
+        damage = player.attack(enemy)
+        print(f"{player.name} attacks {enemy.name} for {damage} damage.")
+        
+        if not enemy.is_alive():
+            print(f"{enemy.name} has been defeated!")
+            player.gain_experience(50)
+            return True
+
+        damage = enemy.attack(player)
+        print(f"{enemy.name} attacks {player.name} for {damage} damage.")
+        
+        if not player.is_alive():
+            print(f"{player.name} has been defeated!")
+            return False
+
+def main():
+    print("Welcome to the Simple RPG Game!")
+    player_name = input("Enter your character's name: ")
+    player = Player(player_name)
+    
+    enemies = [
+        Enemy("Goblin", 30, 10),
+        Enemy("Orc", 50, 15),
+        Enemy("Dragon", 80, 25)
+    ]
+
+    while player.is_alive():
+        enemy = random.choice(enemies)
+        if battle(player, enemy):
+            print(f"{player.name} wins the battle and continues on.")
+        else:
+            print("Game Over.")
+            break
+        
+        print(f"\n{player}")
+
+    print("Thank you for playing!")
+
+if __name__ == "__main__":
+    main()
